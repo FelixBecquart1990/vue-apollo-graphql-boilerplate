@@ -3,7 +3,7 @@
     v-model="snackbar.active"
     :color="snackbar.color"
     :timeout="snackbar.timeout"
-    top
+    bottom
   >
     {{ snackbar.text }}
   </v-snackbar>
@@ -14,8 +14,8 @@ import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapState(["snackbar"])
-  }
+    ...mapState(["snackbar"]),
+  },
 };
 </script>
 

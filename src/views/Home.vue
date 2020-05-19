@@ -11,7 +11,12 @@
         hide-details
       >
         <template v-slot:append>
-          <v-progress-circular v-if="loadingCreate" size="24" width="3" indeterminate></v-progress-circular>
+          <v-progress-circular
+            v-if="loadingCreate"
+            size="24"
+            width="3"
+            indeterminate
+          ></v-progress-circular>
           <v-icon v-else>mdi-account-plus</v-icon>
         </template>
       </v-text-field>
@@ -20,9 +25,21 @@
       <div v-if="users">
         <div v-for="(user, index) in users" :key="index">
           <div v-if="selectedUpdate == user.id" style="display:inline-block">
-            <v-text-field v-model="user.name" style="display:inline-block"></v-text-field>
+            <v-text-field
+              @keyup.enter="updateUser(user.id, user.name)"
+              v-model="user.name"
+              style="display:inline-block"
+              :readonly="loadingUpdate"
+              autofocus
+            ></v-text-field>
           </div>
-          <div v-else @click="selectedUpdate = user.id" style="display:inline-block">{{user.name}}</div>
+          <div
+            v-else
+            @click="selectedUpdate = user.id"
+            style="display:inline-block"
+          >
+            {{ user.name }}
+          </div>
           <v-btn
             icon
             v-if="selectedUpdate == user.id"
@@ -60,7 +77,7 @@ export default {
       loadingCreate: false,
       loadingUpdate: false,
       selectedUpdate: null,
-      selectedDelete: null
+      selectedDelete: null,
     };
   },
   apollo: {
@@ -72,7 +89,7 @@ export default {
           created_at
         }
       }
-    `
+    `,
   },
   methods: {
     createUser() {
@@ -90,30 +107,29 @@ export default {
             }
           `,
           variables: {
-            name: this.name
-          }
+            name: this.name,
+          },
         })
-        .then(payload => {
+        .then((payload) => {
           this.users.push({
             name: this.name,
-            id: payload.data.insert_users.returning[0].id
+            id: payload.data.insert_users.returning[0].id,
           });
           this.loadingCreate = false;
           this.name = "";
           this.$store.commit("setSnackbar", {
             color: "success",
             timeout: 3000,
-            text: "User has been created"
+            text: "User has been created",
           });
         })
-        .catch(err => {
+        .catch((err) => {
           this.loadingCreate = false;
           console.log(err);
         });
     },
     updateUser(id, name) {
       this.loadingUpdate = true;
-      this.selectedUpdate = null;
       this.$apollo
         .mutate({
           mutation: gql`
@@ -125,19 +141,23 @@ export default {
           `,
           variables: {
             id: id,
-            name: name
-          }
+            name: name,
+          },
         })
-        .then(payload => {
+        .then((payload) => {
           this.loadingUpdate = false;
+          this.selectedUpdate = null;
+
           this.$store.commit("setSnackbar", {
-            color: "success",
+            color: "info",
             timeout: 3000,
-            text: "User has been updated"
+            text: "User has been updated",
           });
         })
-        .catch(err => {
+        .catch((err) => {
           this.loadingUpdate = false;
+          this.selectedUpdate = null;
+
           console.log(err);
         });
     },
@@ -153,27 +173,26 @@ export default {
             }
           `,
           variables: {
-            id: id
-          }
+            id: id,
+          },
         })
-        .then(payload => {
+        .then((payload) => {
           this.users.splice(
-            this.users.findIndex(a => a.id === id),
+            this.users.findIndex((a) => a.id === id),
             1
           );
           this.selectedDelete = null;
           this.$store.commit("setSnackbar", {
-            color: "success",
+            color: "info",
             timeout: 3000,
-            text: "User has been deleted"
+            text: "User has been deleted",
           });
         })
-        .catch(err => {
+        .catch((err) => {
           this.selectedDelete = null;
           console.log(err);
         });
-    }
-  }
+    },
+  },
 };
 </script>
-
