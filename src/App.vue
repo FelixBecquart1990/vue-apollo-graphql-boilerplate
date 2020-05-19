@@ -1,14 +1,24 @@
-<template lang="pug">
-  #app
-    router-view
+<template>
+  <v-app>
+    <router-view></router-view>
+    <snackbar />
+  </v-app>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2C3E50;
-}
-</style>
+<script>
+import HelloWorld from "./components/HelloWorld";
+import Snackbar from "./components/Snackbar";
+
+export default {
+  name: "App",
+
+  components: {
+    Snackbar,
+    HelloWorld
+  },
+
+  data: () => ({
+    //
+  })
+};
+</script>
