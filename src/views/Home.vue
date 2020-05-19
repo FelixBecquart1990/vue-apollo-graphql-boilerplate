@@ -2,8 +2,8 @@
   <div>
     <v-col cols="12" sm="6" md="3">
       <v-text-field
-        label="Solo"
         placeholder="User's name"
+        type="text"
         solo
         v-model="name"
         @keyup.enter="createUser()"
@@ -11,26 +11,30 @@
         hide-details
       >
         <template v-slot:append>
-          <v-progress-circular
-            v-if="loadingCreate"
-            size="24"
-            width="3"
-            indeterminate
-          ></v-progress-circular>
-          <v-icon v-else>mdi-account-plus</v-icon>
+          <v-fade-transition leave-absolute>
+            <v-progress-circular
+              v-if="loadingCreate"
+              size="24"
+              width="3"
+              indeterminate
+            ></v-progress-circular>
+            <v-icon v-else @click="createUser()">mdi-account-plus</v-icon>
+          </v-fade-transition>
         </template>
       </v-text-field>
     </v-col>
     <v-col cols="12" sm="6" md="3">
-      <div v-if="users">
-        <div v-for="(user, index) in users" :key="index">
+      <transition-group name="list" tag="p">
+        <div v-for="user in users" v-bind:key="user.id" class="list-user">
           <div v-if="selectedUpdate == user.id" style="display:inline-block">
             <v-text-field
               @keyup.enter="updateUser(user.id, user.name)"
-              v-model="user.name"
+              v-model.trim="user.name"
               style="display:inline-block"
               :readonly="loadingUpdate"
               autofocus
+              type="text"
+              hide-details
             ></v-text-field>
           </div>
           <div
@@ -38,7 +42,7 @@
             @click="selectedUpdate = user.id"
             style="display:inline-block"
           >
-            {{ user.name }}
+            {{ user.name }} - {{ user.created_at.substring(0, 10) }}
           </div>
           <v-btn
             icon
@@ -60,8 +64,11 @@
             <v-icon color="grey">mdi-delete</v-icon>
           </v-btn>
         </div>
-      </div>
-      <v-progress-linear indeterminate v-else></v-progress-linear>
+      </transition-group>
+      <v-progress-linear
+        indeterminate
+        v-if="users.length == 0"
+      ></v-progress-linear>
     </v-col>
   </div>
 </template>
@@ -78,12 +85,13 @@ export default {
       loadingUpdate: false,
       selectedUpdate: null,
       selectedDelete: null,
+      users: [],
     };
   },
   apollo: {
     users: gql`
       query {
-        users {
+        users(order_by: { created_at: desc }) {
           id
           name
           created_at
@@ -102,6 +110,7 @@ export default {
               insert_users(objects: [{ name: $name }]) {
                 returning {
                   id
+                  created_at
                 }
               }
             }
@@ -111,9 +120,10 @@ export default {
           },
         })
         .then((payload) => {
-          this.users.push({
+          this.users.unshift({
             name: this.name,
             id: payload.data.insert_users.returning[0].id,
+            created_at: payload.data.insert_users.returning[0].created_at,
           });
           this.loadingCreate = false;
           this.name = "";
@@ -196,3 +206,23 @@ export default {
   },
 };
 </script>
+<style>
+.v-input {
+  margin-top: 0px !important;
+  padding-top: 0px !important;
+}
+.list-user {
+  height: 40px;
+}
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s;
+  height: 40px;
+}
+.list-enter,
+.list-leave-to {
+  opacity: 0;
+  height: 0px;
+  transform: translateY(-40px);
+}
+</style>
