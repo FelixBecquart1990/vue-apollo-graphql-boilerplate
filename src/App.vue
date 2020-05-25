@@ -6,7 +6,6 @@
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld";
 import Snackbar from "./components/Snackbar";
 
 export default {
@@ -14,11 +13,10 @@ export default {
 
   components: {
     Snackbar,
-    HelloWorld
   },
 
   data: () => ({
     //
-  })
+  }),
 };
 </script>
