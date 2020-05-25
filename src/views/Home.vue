@@ -1,7 +1,7 @@
 <template>
   <v-container>
-    <v-row no-gutters class="ma-3">
-      <v-col cols="12">
+    <v-row no-gutters class="ma-3 mt-5" justify="center">
+      <v-col cols="12" lg="7">
         <v-text-field
           placeholder="Ajouter une question"
           type="text"
@@ -19,7 +19,7 @@
           </template>
         </v-text-field>
       </v-col>
-      <v-col cols="12">
+      <v-col cols="12" lg="7">
         <transition-group name="list" tag="p">
           <div v-for="question in questions" v-bind:key="question.id" class="list-question">
             <v-row no-gutters>
